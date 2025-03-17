@@ -12,12 +12,12 @@ let users = [];
 try {
   const fileData = fs.readFileSync('user_data.json', 'utf8').trim();
   if (fileData) {
-    const parsed = JSON.parse(fileData);
-    if (Array.isArray(parsed)) {
-      users = parsed;
+    const parsed = JSON.parse(fileData); // made an array and stored in parsed
+    if (Array.isArray(parsed)) { // checked if parsed is an array
+      users = parsed; // we stored the json array in users array
     }
   }
-  if (users.length > 0) {
+  if (users.length > 0) { 
     console.log("\nPreviously stored users:\n");
     console.log(JSON.stringify(users, null, 2));
   } else {
@@ -87,7 +87,7 @@ async function getUserData() {
 
 
     fs.writeFileSync('user_data.json', JSON.stringify(users, null, 2));
-    console.log("\n✅ Data saved successfully!");
+    console.log("\nData saved successfully!");
   } catch (err) {
   
     console.log(`\n${err.message}`);
