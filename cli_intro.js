@@ -1,5 +1,6 @@
 const { stdout } = require('process');
 const readline = require('readline');
+const fs = require('fs');
 
 const rl = readline.createInterface({
     input:process.stdin,
@@ -11,8 +12,27 @@ rl.question('What is your name? ', (name)=>{
     rl.question('How old are you? ',(age)=>{
         rl.question('Which city do you live in? ', (city)=>{
             rl.question('What’s your favorite programming language? ', (lang)=>{
-                console.log(`Great! ${name}, you are ${age} years old, living in ${city}, and love ${lang}!`);
-                rl.close();
+
+                const userData ={
+                    name,
+                    age,
+                    city,
+                    lang 
+                };
+
+                const data = JSON.stringify(userData, null, 2);
+
+                fs.appendFile('user_data.json',data, (err)=>{
+                    if(err){
+                        console.log("Error saving data:",err);
+                    }
+                    else{
+                        console.log("\n Data saved successfully!");
+                    }
+                    rl.close();
+                });
+                
+               
             });
         });
     });
