@@ -1,6 +1,8 @@
-{
-  "name": "yam",
-  "age": "45",
-  "city": "yemen",
-  "lang": "java"
-}
+[
+  {
+    "name": "sid",
+    "age": "10000000",
+    "city": "LA",
+    "language": "java"
+  }
+]

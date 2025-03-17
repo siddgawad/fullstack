@@ -1,40 +1,101 @@
-const { stdout } = require('process');
-const readline = require('readline');
 const fs = require('fs');
+const readline = require('readline');
+
 
 const rl = readline.createInterface({
-    input:process.stdin,
-    output:process.stdout
+  input: process.stdin,
+  output: process.stdout
 });
 
-rl.question('What is your name? ', (name)=>{
-    console.log(`Hello ${name}! Welcome to the journey!`);
-    rl.question('How old are you? ',(age)=>{
-        rl.question('Which city do you live in? ', (city)=>{
-            rl.question('What’s your favorite programming language? ', (lang)=>{
 
-                const userData ={
-                    name,
-                    age,
-                    city,
-                    lang 
-                };
+let users = [];
+try {
+  const fileData = fs.readFileSync('user_data.json', 'utf8').trim();
+  if (fileData) {
+    const parsed = JSON.parse(fileData);
+    if (Array.isArray(parsed)) {
+      users = parsed;
+    }
+  }
+  if (users.length > 0) {
+    console.log("\nPreviously stored users:\n");
+    console.log(JSON.stringify(users, null, 2));
+  } else {
+    console.log("\nNo previous user data found.");
+  }
+} catch (err) {
+  console.log("\nNo or invalid user data found. Starting fresh.");
+}
 
-                const data = JSON.stringify(userData, null, 2);
+async function askQuestion(query, maxAttempts, validator) {
+  let attempts = 0;
 
-                fs.appendFile('user_data.json',data, (err)=>{
-                    if(err){
-                        console.log("Error saving data:",err);
-                    }
-                    else{
-                        console.log("\n Data saved successfully!");
-                    }
-                    rl.close();
-                });
-                
-               
-            });
-        });
+  while (attempts < maxAttempts) {
+    const answer = await new Promise((resolve) => {
+      rl.question(query, (resp) => resolve(resp));
     });
-});
 
+    if (validator(answer)) {
+      return answer; 
+    } else {
+      attempts++;
+      console.log(`Invalid input. ${maxAttempts - attempts} attempt(s) left.\n`);
+    }
+  }
+
+
+  throw new Error(`Max attempts (${maxAttempts}) reached. Exiting...`);
+}
+
+
+async function getUserData() {
+  console.log("\n🔹 Please provide new user details (3 attempts each):\n");
+
+  try {
+
+    const name = await askQuestion(
+      "Name: ", 
+      3, 
+      (input) => input.trim().length > 0
+    );
+
+    const age = await askQuestion(
+      "Age: ", 
+      3, 
+      (input) => !isNaN(input) && input.trim().length > 0
+    );
+
+
+    const city = await askQuestion(
+      "City: ", 
+      3, 
+      (input) => input.trim().length > 0
+    );
+
+
+    const lang = await askQuestion(
+      "Favorite programming language: ", 
+      3, 
+      (input) => input.trim().length > 0
+    );
+
+
+    const userData = { name, age, city, language: lang };
+
+
+    users.push(userData);
+
+
+    fs.writeFileSync('user_data.json', JSON.stringify(users, null, 2));
+    console.log("\n✅ Data saved successfully!");
+  } catch (err) {
+  
+    console.log(`\n${err.message}`);
+  } finally {
+
+    rl.close();
+  }
+}
+
+
+getUserData();
